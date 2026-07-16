@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogContent,
   IconButton,
+  Skeleton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -28,6 +29,10 @@ export interface ItemGridProps<T = Record<string, unknown>> {
   onAddNewItem?: (payload: Record<string, unknown>) => void | Promise<void>;
   addNewItemForm?: (props: AddNewItemFormProps) => ReactNode;
   addNewItemLabel?: string;
+  loading?: boolean;
+  skeletonCount?: number;
+  skeletonWidth?: number | string;
+  skeletonHeight?: number | string;
 }
 
 export function ItemGrid<T = Record<string, unknown>>({
@@ -40,6 +45,10 @@ export function ItemGrid<T = Record<string, unknown>>({
   onAddNewItem,
   addNewItemForm,
   addNewItemLabel = "Add New Item",
+  loading = false,
+  skeletonCount = 6,
+  skeletonWidth = 500,
+  skeletonHeight = 450,
 }: ItemGridProps<T>) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -61,13 +70,29 @@ export function ItemGrid<T = Record<string, unknown>>({
   return (
     <Box sx={{ margin }}>
       <Grid container spacing={spacing} sx={{ width: "100%" }}>
-        {items.map((item) => (
-          <Grid size={gridSize} key={getItemKey(item)}>
-            {renderItem(item)}
-          </Grid>
-        ))}
+        {loading
+          ? Array.from({ length: skeletonCount }).map((_, i) => (
+              <Grid size={gridSize} key={`skeleton-${i}`}>
+                <Skeleton
+                  variant="rounded"
+                  animation="wave"
+                  height={skeletonHeight}
+                  sx={{
+                    width: "100%",
+                    maxWidth: skeletonWidth,
+                    mx: "auto",
+                    borderRadius: 4,
+                  }}
+                />
+              </Grid>
+            ))
+          : items.map((item) => (
+              <Grid size={gridSize} key={getItemKey(item)}>
+                {renderItem(item)}
+              </Grid>
+            ))}
 
-        {canAdd && (
+        {!loading && canAdd && (
           <Grid size={addGridSize}>
             <Box
               sx={{

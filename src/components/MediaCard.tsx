@@ -39,6 +39,7 @@ export interface MediaCardProps {
   onDelete?: () => void | Promise<void>;
   deleteLabel?: string;
   deleteConfirmMessage?: ReactNode;
+  onClick?: () => void;
 }
 
 export function MediaCard({
@@ -58,6 +59,7 @@ export function MediaCard({
   onDelete,
   deleteLabel = "Delete",
   deleteConfirmMessage = "Are you sure you want to delete this item? This action cannot be undone.",
+  onClick,
 }: MediaCardProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -121,6 +123,7 @@ export function MediaCard({
       )}
 
       <Card
+        onClick={onClick}
         sx={{
           height: "100%",
           display: "flex",
