@@ -8,8 +8,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  IconButton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 
 export interface AddNewItemFormProps {
   onSubmit: (payload: Record<string, unknown>) => void | Promise<void>;
@@ -43,6 +45,13 @@ export function ItemGrid<T = Record<string, unknown>>({
 
   const canAdd = Boolean(onAddNewItem && addNewItemForm);
 
+  const addGridSize = {
+    xs: gridSize.xs,
+    sm: gridSize.sm ? Math.max(1, Math.floor(gridSize.sm / 2)) : undefined,
+    md: gridSize.md ? Math.max(1, Math.floor(gridSize.md / 2)) : undefined,
+    lg: gridSize.lg ? Math.max(1, Math.floor(gridSize.lg / 2)) : undefined,
+  };
+
   const handleSubmit = async (payload: Record<string, unknown>) => {
     if (!onAddNewItem) return;
     await onAddNewItem(payload);
@@ -51,7 +60,7 @@ export function ItemGrid<T = Record<string, unknown>>({
 
   return (
     <Box sx={{ margin }}>
-      <Grid sx={{ width: "100%" }} container spacing={spacing}>
+      <Grid container spacing={spacing} sx={{ width: "100%" }}>
         {items.map((item) => (
           <Grid size={gridSize} key={getItemKey(item)}>
             {renderItem(item)}
@@ -59,36 +68,56 @@ export function ItemGrid<T = Record<string, unknown>>({
         ))}
 
         {canAdd && (
-          <Grid size={gridSize}>
-            <Card
-              variant="outlined"
+          <Grid size={addGridSize}>
+            <Box
               sx={{
                 height: "100%",
                 minHeight: 160,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                borderStyle: "dashed",
               }}
             >
-              <CardActionArea
-                onClick={() => setDialogOpen(true)}
+              <Card
+                variant="outlined"
                 sx={{
-                  height: "100%",
+                  width: "100%",
+                  height: "50%",
+                  minHeight: 80,
                   display: "flex",
-                  flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 1,
-                  py: 4,
+                  bgcolor: "rgba(0, 0, 0, 0.04)",
+                  border: "3px dashed",
+                  borderColor: "grey.400",
+                  boxShadow: "none",
+                  transition: "all 0.2s ease",
+                  borderRadius: 4,
+                  "&:hover": {
+                    bgcolor: "rgba(0, 0, 0, 0.08)",
+                    borderColor: "primary.main",
+                  },
                 }}
               >
-                <AddIcon fontSize="large" color="action" />
-                <Typography color="text.secondary">
-                  {addNewItemLabel}
-                </Typography>
-              </CardActionArea>
-            </Card>
+                <CardActionArea
+                  onClick={() => setDialogOpen(true)}
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1,
+                    p: 2,
+                  }}
+                >
+                  <AddIcon fontSize="large" color="action" />
+                  <Typography color="text.secondary">
+                    {addNewItemLabel}
+                  </Typography>
+                </CardActionArea>
+              </Card>
+            </Box>
           </Grid>
         )}
       </Grid>
@@ -100,8 +129,25 @@ export function ItemGrid<T = Record<string, unknown>>({
           fullWidth
           maxWidth="sm"
         >
-          <DialogTitle>{addNewItemLabel}</DialogTitle>
-          <DialogContent>
+          <DialogTitle
+            sx={{
+              borderBottom: 2,
+              borderColor: "divider",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            {addNewItemLabel}
+            <IconButton
+              size="small"
+              onClick={() => setDialogOpen(false)}
+              aria-label="Close"
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ padding: 0 }}>
             {addNewItemForm!({
               onSubmit: handleSubmit,
               onCancel: () => setDialogOpen(false),
@@ -112,3 +158,5 @@ export function ItemGrid<T = Record<string, unknown>>({
     </Box>
   );
 }
+
+export default ItemGrid;
