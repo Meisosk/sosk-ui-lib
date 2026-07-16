@@ -1,12 +1,18 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import {
   TextField as MuiTextField,
   TextFieldProps as MuiTextFieldProps,
   InputAdornment,
+  Typography,
+  Box,
 } from "@mui/material";
 
-type BaseProps = Omit<MuiTextFieldProps, "variant" | "value" | "onChange"> & {
+type BaseProps = Omit<
+  MuiTextFieldProps,
+  "variant" | "value" | "onChange" | "label"
+> & {
   variant?: MuiTextFieldProps["variant"];
+  label?: string;
 };
 
 type TextProps = BaseProps & {
@@ -17,8 +23,8 @@ type TextProps = BaseProps & {
 
 type PriceProps = BaseProps & {
   price: true;
-  value: number;
-  onChange: (value: number) => void;
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
   currencySymbol?: string;
 };
 
@@ -26,47 +32,101 @@ export type TextFieldProps = TextProps | PriceProps;
 
 /**
  * TextField wrapper that standardizes the label/error/helperText/fullWidth
- * pattern used across forms, and doubles as a currency input when `price`
- * is set — emitting a plain number via onChange instead of a raw change
- * event, and rendering the currency adornment through the MUI v9
- * slotProps API (InputProps -> slotProps.input) in one place instead of
- * at every call site.
+ * pattern used across forms, renders the label as static text above the
+ * field (rather than MUI's floating/notched label), and doubles as a
+ * currency input when `price` is set — emitting a plain number (or
+ * undefined when cleared) via onChange instead of a raw change event, and
+ * rendering the currency adornment through the MUI v9 slotProps API
+ * (InputProps -> slotProps.input) in one place instead of at every call
+ * site.
  */
-export function TextField(props: TextFieldProps) {
-  const { fullWidth = true, ...rest } = props;
+export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
+  function TextField(props, ref) {
+    const { fullWidth = true, label, ...rest } = props;
 
-  if (rest.price) {
-    const { price, value, onChange, currencySymbol = "$", ...others } = rest;
+    const wrap = (field: React.ReactNode) => (
+      <Box sx={{ width: fullWidth ? "100%" : "auto" }}>
+        {label && (
+          <Typography
+            component="label"
+            variant="body2"
+            sx={{ display: "block", mb: 0.5, fontWeight: 500 }}
+          >
+            {label}
+            {rest.required && (
+              <Typography
+                component="span"
+                sx={{ color: "error.main", ml: 0.5 }}
+              >
+                *
+              </Typography>
+            )}
+          </Typography>
+        )}
+        {field}
+      </Box>
+    );
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = e.target.value;
-      if (raw === "") {
-        onChange(0);
-        return;
-      }
-      const parsed = Number(raw);
-      if (!Number.isNaN(parsed)) onChange(parsed);
-    };
+    if (rest.price) {
+      const {
+        price,
+        value,
+        onChange,
+        currencySymbol = "$",
+        slotProps,
+        ...others
+      } = rest;
 
-    return (
+      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const raw = e.target.value;
+        if (raw === "") {
+          onChange(undefined);
+          return;
+        }
+        const parsed = Number(raw);
+        if (!Number.isNaN(parsed)) onChange(parsed);
+      };
+
+      return wrap(
+        <MuiTextField
+          {...others}
+          ref={ref}
+          fullWidth={fullWidth}
+          type="number"
+          value={value ?? ""}
+          onChange={handleChange}
+          hiddenLabel
+          slotProps={{
+            ...slotProps,
+            input: {
+              ...slotProps?.input,
+              startAdornment: (
+                <InputAdornment position="start">
+                  {currencySymbol}
+                </InputAdornment>
+              ),
+            },
+            htmlInput: { min: 0, step: "0.01", ...slotProps?.htmlInput },
+            formHelperText: { sx: { mx: 0 }, ...slotProps?.formHelperText },
+          }}
+        />
+      );
+    }
+
+    const { price, slotProps, ...others } = rest;
+    return wrap(
       <MuiTextField
         {...others}
+        ref={ref}
         fullWidth={fullWidth}
-        type="number"
-        value={value === 0 ? "" : value}
-        onChange={handleChange}
+        hiddenLabel
         slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">{currencySymbol}</InputAdornment>
-            ),
-          },
-          htmlInput: { min: 0, step: "0.01" },
+          ...slotProps,
+          formHelperText: { sx: { mx: 0 }, ...slotProps?.formHelperText },
         }}
       />
     );
   }
+);
 
-  const { price, ...others } = rest;
-  return <MuiTextField {...others} fullWidth={fullWidth} />;
-}
+export default TextField;
