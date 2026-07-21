@@ -6,3 +6,4 @@ export { ImageField } from "./components/Form/ImageField";
 export type { ImageFieldValue } from "./components/Form/ImageField";
 export { TextField } from "./components/Form/TextField";
 export type { TextFieldProps } from "./components/Form/TextField";
+export { Autocomplete } from "./components/Autocomplete";

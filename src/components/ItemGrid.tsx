@@ -33,6 +33,7 @@ export interface ItemGridProps<T = Record<string, unknown>> {
   skeletonCount?: number;
   skeletonWidth?: number | string;
   skeletonHeight?: number | string;
+  header?: ReactNode;
 }
 
 export function ItemGrid<T = Record<string, unknown>>({
@@ -49,6 +50,7 @@ export function ItemGrid<T = Record<string, unknown>>({
   skeletonCount = 6,
   skeletonWidth = 500,
   skeletonHeight = 450,
+  header,
 }: ItemGridProps<T>) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -69,6 +71,8 @@ export function ItemGrid<T = Record<string, unknown>>({
 
   return (
     <Box sx={{ margin }}>
+      {header && <Box sx={{ mb: 3 }}>{header}</Box>}
+
       <Grid container spacing={spacing} sx={{ width: "100%" }}>
         {loading
           ? Array.from({ length: skeletonCount }).map((_, i) => (
