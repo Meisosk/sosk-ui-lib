@@ -7,3 +7,5 @@ export type { ImageFieldValue } from "./components/Form/ImageField";
 export { TextField } from "./components/Form/TextField";
 export type { TextFieldProps } from "./components/Form/TextField";
 export { Autocomplete } from "./components/Autocomplete";
+export type { HeroBannerProps } from "./components/HeroBanner";
+export { HeroBanner } from "./components/HeroBanner";
