@@ -11,8 +11,11 @@ export interface SelectFieldProps<T> {
   isOptionEqualToValue: (option: T, value: T) => boolean;
   label: string;
   icon?: ReactNode;
+  popupIcon?: ReactNode;
   width?: number | string;
   disableClearable?: boolean;
+  variant?: "card" | "minimal";
+  size?: "small" | "medium";
   sx?: SxProps<Theme>;
 }
 
@@ -24,10 +27,15 @@ export function Autocomplete<T>({
   isOptionEqualToValue,
   label,
   icon,
+  popupIcon,
   width = 240,
   disableClearable = true,
+  variant = "card",
+  size = "medium",
   sx,
 }: SelectFieldProps<T>) {
+  const isMinimal = variant === "minimal";
+
   return (
     <Box sx={{ position: "relative", width, ...sx }}>
       {icon && (
@@ -49,32 +57,28 @@ export function Autocomplete<T>({
       )}
       <MuiAutocomplete<T, false, boolean>
         disableClearable={disableClearable}
+        size={size}
         options={options}
         getOptionLabel={getOptionLabel}
         isOptionEqualToValue={isOptionEqualToValue}
         value={value}
+        popupIcon={popupIcon}
         onChange={(_, newValue) => {
           if (newValue !== null) onChange(newValue);
         }}
         sx={{
           width: "100%",
           "& .MuiOutlinedInput-root": {
-            borderRadius: 3,
-            bgcolor: "background.paper",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            borderRadius: isMinimal ? 1 : 3,
+            bgcolor: "transparent",
+            boxShadow: isMinimal ? "none" : "0 2px 8px rgba(0,0,0,0.06)",
             transition: "all 0.2s ease",
             pl: icon ? 4 : undefined,
-            "& fieldset": {
-              borderColor: "divider",
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "primary.main",
             },
-            "&:hover": {
-              boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
-              "& fieldset": {
-                borderColor: "primary.main",
-              },
-            },
-            "&.Mui-focused": {
-              boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "primary.main",
             },
           },
         }}
