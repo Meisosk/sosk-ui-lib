@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useId } from "react";
 import {
   TextField as MuiTextField,
   TextFieldProps as MuiTextFieldProps,
@@ -14,7 +14,6 @@ type BaseProps = Omit<
   variant?: MuiTextFieldProps["variant"];
   label?: string;
 };
-
 type TextProps = BaseProps & {
   price?: false;
   value?: MuiTextFieldProps["value"];
@@ -44,11 +43,15 @@ export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
   function TextField(props, ref) {
     const { fullWidth = true, label, ...rest } = props;
 
+    const generatedId = useId();
+    const inputId = rest.id ?? generatedId;
+
     const wrap = (field: React.ReactNode) => (
       <Box sx={{ width: fullWidth ? "100%" : "auto" }}>
         {label && (
           <Typography
             component="label"
+            htmlFor={inputId}
             variant="body2"
             sx={{ display: "block", mb: 0.5, fontWeight: 500 }}
           >
@@ -90,6 +93,7 @@ export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
       return wrap(
         <MuiTextField
           {...others}
+          id={inputId}
           ref={ref}
           fullWidth={fullWidth}
           type="number"
@@ -117,6 +121,7 @@ export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
     return wrap(
       <MuiTextField
         {...others}
+        id={inputId}
         ref={ref}
         fullWidth={fullWidth}
         hiddenLabel
