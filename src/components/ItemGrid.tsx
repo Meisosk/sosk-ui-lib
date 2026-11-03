@@ -10,6 +10,7 @@ import {
   DialogContent,
   IconButton,
   Skeleton,
+  Breakpoint,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -19,11 +20,13 @@ export interface AddNewItemFormProps {
   onCancel: () => void;
 }
 
+type Responsive<V> = V | Partial<Record<Breakpoint, V>>;
+
 export interface ItemGridProps<T = Record<string, unknown>> {
   items: T[];
   renderItem: (item: T) => ReactNode;
   getItemKey: (item: T) => string | number;
-  margin?: number | string;
+  margin?: Responsive<number | string>;
   spacing?: number;
   gridSize?: { xs?: number; sm?: number; md?: number; lg?: number };
   onAddNewItem?: (payload: Record<string, unknown>) => void | Promise<void>;
@@ -33,6 +36,7 @@ export interface ItemGridProps<T = Record<string, unknown>> {
   skeletonCount?: number;
   skeletonWidth?: number | string;
   skeletonHeight?: number | string;
+  renderSkeleton?: () => ReactNode;
   header?: ReactNode;
 }
 
@@ -40,7 +44,7 @@ export function ItemGrid<T = Record<string, unknown>>({
   items,
   renderItem,
   getItemKey,
-  margin = 8,
+  margin = { xs: 3, lg: 8 },
   spacing = 2,
   gridSize = { xs: 12, sm: 6, md: 4 },
   onAddNewItem,
@@ -48,8 +52,9 @@ export function ItemGrid<T = Record<string, unknown>>({
   addNewItemLabel = "Add New Item",
   loading = false,
   skeletonCount = 6,
-  skeletonWidth = 500,
+  skeletonWidth = "100%",
   skeletonHeight = 450,
+  renderSkeleton,
   header,
 }: ItemGridProps<T>) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -69,6 +74,33 @@ export function ItemGrid<T = Record<string, unknown>>({
     setDialogOpen(false);
   };
 
+  const defaultSkeleton = (
+    <Card
+      sx={{
+        width: "100%",
+        maxWidth: skeletonWidth,
+        minHeight: skeletonHeight,
+        mx: "auto",
+        borderRadius: 3,
+        overflow: "hidden",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+      }}
+    >
+      <Skeleton
+        variant="rectangular"
+        animation="wave"
+        height={260}
+        sx={{ width: "100%" }}
+      />
+      <Box sx={{ p: 3 }}>
+        <Skeleton animation="wave" width="60%" height={32} sx={{ mb: 1 }} />
+        <Skeleton animation="wave" height={20} />
+        <Skeleton animation="wave" height={20} />
+        <Skeleton animation="wave" width="30%" height={36} sx={{ mt: 2 }} />
+      </Box>
+    </Card>
+  );
+
   return (
     <Box sx={{ margin }}>
       {header && <Box sx={{ mb: 3 }}>{header}</Box>}
@@ -77,17 +109,7 @@ export function ItemGrid<T = Record<string, unknown>>({
         {loading
           ? Array.from({ length: skeletonCount }).map((_, i) => (
               <Grid size={gridSize} key={`skeleton-${i}`}>
-                <Skeleton
-                  variant="rounded"
-                  animation="wave"
-                  height={skeletonHeight}
-                  sx={{
-                    width: "100%",
-                    maxWidth: skeletonWidth,
-                    mx: "auto",
-                    borderRadius: 4,
-                  }}
-                />
+                {renderSkeleton ? renderSkeleton() : defaultSkeleton}
               </Grid>
             ))
           : items.map((item) => (
