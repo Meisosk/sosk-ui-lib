@@ -5,15 +5,11 @@ import {
   Card,
   CardActionArea,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
   Skeleton,
   Breakpoint,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
+import { TitledDialog } from "./TitledDialog";
 
 export interface AddNewItemFormProps {
   onSubmit: (payload: Record<string, unknown>) => void | Promise<void>;
@@ -174,37 +170,16 @@ export function ItemGrid<T = Record<string, unknown>>({
       </Grid>
 
       {canAdd && (
-        <Dialog
+        <TitledDialog
           open={dialogOpen}
           onClose={() => setDialogOpen(false)}
-          fullWidth
-          maxWidth="sm"
+          title={addNewItemLabel}
         >
-          <DialogTitle
-            sx={{
-              borderBottom: 2,
-              borderColor: "divider",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            {addNewItemLabel}
-            <IconButton
-              size="small"
-              onClick={() => setDialogOpen(false)}
-              aria-label="Close"
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent sx={{ padding: 0 }}>
-            {addNewItemForm!({
-              onSubmit: handleSubmit,
-              onCancel: () => setDialogOpen(false),
-            })}
-          </DialogContent>
-        </Dialog>
+          {addNewItemForm!({
+            onSubmit: handleSubmit,
+            onCancel: () => setDialogOpen(false),
+          })}
+        </TitledDialog>
       )}
     </Box>
   );

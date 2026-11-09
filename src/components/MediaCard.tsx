@@ -7,15 +7,12 @@ import {
   Typography,
   Stack,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Button,
 } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
+import { TitledDialog } from "./TitledDialog";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 export interface EditFormProps {
   onSubmit: (payload: Record<string, unknown>) => void | Promise<void>;
@@ -63,7 +60,6 @@ export function MediaCard({
 }: MediaCardProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   const canEdit = Boolean(onEdit && editForm);
   const canDelete = Boolean(onDelete);
@@ -72,17 +68,6 @@ export function MediaCard({
     if (!onEdit) return;
     await onEdit(payload);
     setEditOpen(false);
-  };
-
-  const handleDelete = async () => {
-    if (!onDelete) return;
-    setDeleting(true);
-    try {
-      await onDelete();
-      setDeleteOpen(false);
-    } finally {
-      setDeleting(false);
-    }
   };
 
   return (
@@ -206,98 +191,28 @@ export function MediaCard({
       </Card>
 
       {canEdit && (
-        <Dialog
+        <TitledDialog
           open={editOpen}
           onClose={() => setEditOpen(false)}
-          fullWidth
-          maxWidth="sm"
+          title={editLabel}
         >
-          <DialogTitle
-            sx={{
-              borderBottom: 2,
-              borderColor: "divider",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            {editLabel}
-            <IconButton
-              size="small"
-              onClick={() => setEditOpen(false)}
-              aria-label="Close"
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent sx={{ padding: 0 }}>
-            {editForm!({
-              onSubmit: handleEditSubmit,
-              onCancel: () => setEditOpen(false),
-            })}
-          </DialogContent>
-        </Dialog>
+          {editForm!({
+            onSubmit: handleEditSubmit,
+            onCancel: () => setEditOpen(false),
+          })}
+        </TitledDialog>
       )}
 
       {canDelete && (
-        <Dialog
+        <ConfirmDialog
           open={deleteOpen}
-          onClose={() => !deleting && setDeleteOpen(false)}
-          fullWidth
-          maxWidth="xs"
-        >
-          <DialogTitle
-            sx={{
-              borderBottom: 2,
-              borderColor: "divider",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            {deleteLabel}
-            <IconButton
-              size="small"
-              onClick={() => setDeleteOpen(false)}
-              disabled={deleting}
-              aria-label="Close"
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent sx={{ padding: 0 }}>
-            <Box sx={{ p: 2 }}>
-              <Typography>{deleteConfirmMessage}</Typography>
-            </Box>
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{
-                justifyContent: "flex-end",
-                borderTop: 2,
-                borderColor: "divider",
-                p: 2,
-              }}
-            >
-              <Button
-                variant="outlined"
-                color="inherit"
-                onClick={() => setDeleteOpen(false)}
-                disabled={deleting}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleDelete}
-                color="error"
-                variant="contained"
-                disabled={deleting}
-              >
-                {deleting ? "Deleting…" : deleteLabel}
-              </Button>
-            </Stack>
-          </DialogContent>
-        </Dialog>
+          onClose={() => setDeleteOpen(false)}
+          onConfirm={onDelete!}
+          title={deleteLabel}
+          message={deleteConfirmMessage}
+          confirmLabel={deleteLabel}
+          pendingLabel="Deleting…"
+        />
       )}
     </Box>
   );
