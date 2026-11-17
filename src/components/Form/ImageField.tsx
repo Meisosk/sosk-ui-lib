@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useId, useRef, useState } from "react";
 import {
   Box,
   Paper,
@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloseIcon from "@mui/icons-material/Close";
+import { visuallyHidden } from "../../utils";
 
 export type ImageFieldValue = {
   base64: string;
@@ -48,6 +49,8 @@ export function ImageField({
   const [isDragging, setIsDragging] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
+  const helperId = useId();
 
   const processFile = useCallback(
     async (file: File) => {
@@ -110,7 +113,8 @@ export function ImageField({
     e.target.value = "";
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    if (e.target === inputRef.current) return;
     if (!disabled) inputRef.current?.click();
   };
 
@@ -118,6 +122,7 @@ export function ImageField({
     e.stopPropagation();
     onChange(null);
     setLocalError(null);
+    inputRef.current?.focus();
   };
 
   const displayError = error || Boolean(localError);
@@ -125,7 +130,12 @@ export function ImageField({
 
   return (
     <Box>
-      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+      <Typography
+        component="label"
+        htmlFor={inputId}
+        variant="subtitle2"
+        sx={{ display: "block", mb: 0.5 }}
+      >
         {label}
       </Typography>
 
@@ -136,6 +146,7 @@ export function ImageField({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         sx={{
+          position: "relative",
           p: 3,
           textAlign: "center",
           cursor: disabled ? "not-allowed" : "pointer",
@@ -152,15 +163,23 @@ export function ImageField({
           "&:hover": disabled
             ? undefined
             : { borderColor: "primary.main", bgcolor: "action.hover" },
+          "&:has(input:focus-visible)": {
+            outline: "2px solid",
+            outlineColor: "primary.main",
+            outlineOffset: 2,
+          },
         }}
       >
         <input
           ref={inputRef}
+          id={inputId}
           type="file"
           accept="image/*"
-          hidden
           disabled={disabled}
           onChange={handleInputChange}
+          aria-invalid={displayError || undefined}
+          aria-describedby={displayHelperText ? helperId : undefined}
+          style={visuallyHidden}
         />
 
         {value ? (
@@ -171,6 +190,7 @@ export function ImageField({
           >
             <Avatar
               src={value.base64}
+              alt=""
               variant="rounded"
               sx={{ width: 56, height: 56 }}
             />
@@ -182,7 +202,12 @@ export function ImageField({
                 {(value.fileSize / 1024).toFixed(1)} KB
               </Typography>
             </Box>
-            <IconButton size="small" onClick={handleRemove} disabled={disabled}>
+            <IconButton
+              size="small"
+              onClick={handleRemove}
+              disabled={disabled}
+              aria-label={`Remove ${value.fileName}`}
+            >
               <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>
@@ -196,11 +221,13 @@ export function ImageField({
         )}
       </Paper>
 
-      {displayHelperText && (
-        <FormHelperText error={displayError}>
-          {displayHelperText}
-        </FormHelperText>
-      )}
+      <Box aria-live="polite">
+        {displayHelperText && (
+          <FormHelperText id={helperId} error={displayError}>
+            {displayHelperText}
+          </FormHelperText>
+        )}
+      </Box>
     </Box>
   );
 }

@@ -23,7 +23,7 @@ export interface ItemGridProps<T = Record<string, unknown>> {
   renderItem: (item: T) => ReactNode;
   getItemKey: (item: T) => string | number;
   margin?: Responsive<number | string>;
-  spacing?: number;
+  spacing?: Responsive<number>;
   gridSize?: { xs?: number; sm?: number; md?: number; lg?: number };
   onAddNewItem?: (payload: Record<string, unknown>) => void | Promise<void>;
   addNewItemForm?: (props: AddNewItemFormProps) => ReactNode;

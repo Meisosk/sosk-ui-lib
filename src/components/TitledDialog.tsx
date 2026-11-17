@@ -38,17 +38,18 @@ export function TitledDialog({
       maxWidth={maxWidth}
       aria-labelledby={titleId}
     >
-      <DialogTitle
-        id={titleId}
+      <Stack
+        direction="row"
         sx={{
+          alignItems: "center",
           borderBottom: 2,
           borderColor: "divider",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
+          pr: 3,
         }}
       >
-        {title}
+        <DialogTitle id={titleId} sx={{ flex: 1, minWidth: 0 }}>
+          {title}
+        </DialogTitle>
         <IconButton
           size="small"
           onClick={onClose}
@@ -57,7 +58,7 @@ export function TitledDialog({
         >
           <CloseIcon fontSize="small" />
         </IconButton>
-      </DialogTitle>
+      </Stack>
       <DialogContent sx={{ padding: 0 }}>
         {children}
         {actions && (

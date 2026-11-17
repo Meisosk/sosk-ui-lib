@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { Box, Button, ButtonProps, Typography } from "@mui/material";
+import { Alert, Box, Button, ButtonProps, Typography } from "@mui/material";
 import { TitledDialog } from "./TitledDialog";
 
 export interface ConfirmDialogProps {
@@ -12,6 +12,7 @@ export interface ConfirmDialogProps {
   cancelLabel?: string;
   pendingLabel?: string;
   confirmColor?: ButtonProps["color"];
+  errorMessage?: ReactNode;
 }
 
 export function ConfirmDialog({
@@ -24,23 +25,34 @@ export function ConfirmDialog({
   cancelLabel = "Cancel",
   pendingLabel,
   confirmColor = "error",
+  errorMessage = "Something went wrong. Please try again.",
 }: ConfirmDialogProps) {
   const [pending, setPending] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  const handleClose = () => {
+    setFailed(false);
+    onClose();
+  };
 
   const handleConfirm = async () => {
     setPending(true);
+    setFailed(false);
     try {
       await onConfirm();
-      onClose();
-    } finally {
+    } catch {
+      setFailed(true);
       setPending(false);
+      return;
     }
+    setPending(false);
+    handleClose();
   };
 
   return (
     <TitledDialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       title={title}
       maxWidth="xs"
       disableClose={pending}
@@ -49,7 +61,7 @@ export function ConfirmDialog({
           <Button
             variant="outlined"
             color="inherit"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={pending}
           >
             {cancelLabel}
@@ -66,7 +78,12 @@ export function ConfirmDialog({
       }
     >
       <Box sx={{ p: 2 }}>
-        <Typography>{message}</Typography>
+        <Typography component="div">{message}</Typography>
+        {failed && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
       </Box>
     </TitledDialog>
   );

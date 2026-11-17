@@ -16,11 +16,10 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        "react",
-        "react-dom",
-        "@mui/material",
-        "@emotion/react",
-        "@emotion/styled",
+        /^react($|\/)/,
+        /^react-dom($|\/)/,
+        /^@mui\//,
+        /^@emotion\//,
       ],
       output: {
         globals: { react: "React", "react-dom": "ReactDOM" },

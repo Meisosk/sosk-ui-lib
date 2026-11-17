@@ -1,7 +1,12 @@
 import { ReactNode } from "react";
-import { Autocomplete as MuiAutocomplete, Box } from "@mui/material";
+import {
+  Autocomplete as MuiAutocomplete,
+  Box,
+  InputAdornment,
+} from "@mui/material";
 import type { SxProps, Theme } from "@mui/material";
 import { TextField } from "./Form/TextField";
+import { toSxArray } from "../utils";
 
 export interface SelectFieldProps<T> {
   options: T[];
@@ -13,7 +18,6 @@ export interface SelectFieldProps<T> {
   icon?: ReactNode;
   popupIcon?: ReactNode;
   width?: number | string;
-  disableClearable?: boolean;
   variant?: "card" | "minimal";
   size?: "small" | "medium";
   sx?: SxProps<Theme>;
@@ -29,7 +33,6 @@ export function Autocomplete<T>({
   icon,
   popupIcon,
   width = 240,
-  disableClearable = true,
   variant = "card",
   size = "medium",
   sx,
@@ -37,26 +40,9 @@ export function Autocomplete<T>({
   const isMinimal = variant === "minimal";
 
   return (
-    <Box sx={{ position: "relative", width, ...sx }}>
-      {icon && (
-        <Box
-          sx={{
-            position: "absolute",
-            left: 12,
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: "text.secondary",
-            zIndex: 1,
-            pointerEvents: "none",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          {icon}
-        </Box>
-      )}
+    <Box sx={[{ width }, ...toSxArray(sx)]}>
       <MuiAutocomplete<T, false, boolean>
-        disableClearable={disableClearable}
+        disableClearable
         size={size}
         options={options}
         getOptionLabel={getOptionLabel}
@@ -73,7 +59,6 @@ export function Autocomplete<T>({
             bgcolor: "transparent",
             boxShadow: isMinimal ? "none" : "0 2px 8px rgba(0,0,0,0.06)",
             transition: "all 0.2s ease",
-            pl: icon ? 4 : undefined,
             "&:hover .MuiOutlinedInput-notchedOutline": {
               borderColor: "primary.main",
             },
@@ -82,7 +67,28 @@ export function Autocomplete<T>({
             },
           },
         }}
-        renderInput={(params) => <TextField {...params} label={label} />}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={label}
+            slotProps={{
+              ...params.slotProps,
+              input: {
+                ...params.slotProps.input,
+                startAdornment: icon ? (
+                  <InputAdornment
+                    position="start"
+                    sx={{ color: "text.secondary" }}
+                  >
+                    {icon}
+                  </InputAdornment>
+                ) : (
+                  params.slotProps.input.startAdornment
+                ),
+              },
+            }}
+          />
+        )}
       />
     </Box>
   );
