@@ -2,6 +2,7 @@ import { useState, FormEvent, ChangeEvent } from "react";
 import { Box, Button, CircularProgress, Stack } from "@mui/material";
 import { TextField } from "./Form/TextField";
 import { DismissibleAlert } from "./DismissibleAlert";
+import { visuallyHidden } from "../utils";
 
 export interface ContactFormData {
   name: string;
@@ -13,6 +14,7 @@ export interface ContactFormData {
 export interface ContactFormProps {
   onSubmit: (data: ContactFormData) => Promise<void>;
   submitLabel?: string;
+  submittingLabel?: string;
   successMessage?: string;
   errorMessage?: string;
 }
@@ -27,6 +29,7 @@ const emptyForm: ContactFormData = {
 export function ContactForm({
   onSubmit,
   submitLabel = "Send message",
+  submittingLabel = "Sending…",
   successMessage = "Your message has been sent!",
   errorMessage = "There was an issue sending your message. Please try again.",
 }: ContactFormProps) {
@@ -106,7 +109,10 @@ export function ContactForm({
           fullWidth
         >
           {status === "submitting" ? (
-            <CircularProgress size={22} color="inherit" />
+            <>
+              <CircularProgress size={22} color="inherit" aria-hidden />
+              <span style={visuallyHidden}>{submittingLabel}</span>
+            </>
           ) : (
             submitLabel
           )}
