@@ -23,6 +23,8 @@ export { QuantityPicker } from "./components/QuantityPicker";
 export type { QuantityPickerProps } from "./components/QuantityPicker";
 export { FeatureList } from "./components/FeatureList";
 export type { FeatureListProps, FeatureListItem } from "./components/FeatureList";
+export { CategoryTiles } from "./components/CategoryTiles";
+export type { CategoryTilesProps, CategoryTile } from "./components/CategoryTiles";
 export { SearchField } from "./components/SearchField";
 export type { SearchFieldProps } from "./components/SearchField";
 export { StatusPanel } from "./components/StatusPanel";

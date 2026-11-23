@@ -51,6 +51,7 @@ export const TextField = forwardRef<HTMLDivElement, TextFieldProps>(
         {label && (
           <Typography
             component="label"
+            id={`${inputId}-label`}
             htmlFor={inputId}
             variant="body2"
             sx={{ display: "block", mb: 0.5, fontWeight: 500 }}
