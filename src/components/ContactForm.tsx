@@ -1,5 +1,11 @@
-import { useState, FormEvent, ChangeEvent } from "react";
-import { Box, Button, CircularProgress, Stack } from "@mui/material";
+import { useId, useState, FormEvent, ChangeEvent } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  MenuItem,
+  Stack,
+} from "@mui/material";
 import { TextField } from "./Form/TextField";
 import { DismissibleAlert } from "./DismissibleAlert";
 import { visuallyHidden } from "../utils";
@@ -17,6 +23,8 @@ export interface ContactFormProps {
   submittingLabel?: string;
   successMessage?: string;
   errorMessage?: string;
+  subjectOptions?: string[];
+  subjectPlaceholder?: string;
 }
 
 const emptyForm: ContactFormData = {
@@ -32,7 +40,10 @@ export function ContactForm({
   submittingLabel = "Sending…",
   successMessage = "Your message has been sent!",
   errorMessage = "There was an issue sending your message. Please try again.",
+  subjectOptions,
+  subjectPlaceholder = "Choose a subject",
 }: ContactFormProps) {
+  const subjectId = useId();
   const [values, setValues] = useState<ContactFormData>(emptyForm);
   const [status, setStatus] = useState<
     "idle" | "submitting" | "success" | "error"
@@ -72,12 +83,44 @@ export function ContactForm({
           required
           fullWidth
         />
-        <TextField
-          label="Subject"
-          value={values.subject}
-          onChange={handleChange("subject")}
-          fullWidth
-        />
+        {subjectOptions ? (
+          <TextField
+            label="Subject"
+            select
+            value={values.subject}
+            onChange={handleChange("subject")}
+            required
+            fullWidth
+            id={subjectId}
+            slotProps={{
+              select: {
+                labelId: `${subjectId}-label`,
+                displayEmpty: true,
+                renderValue: (value) =>
+                  value ? (
+                    String(value)
+                  ) : (
+                    <Box component="span" sx={{ color: "text.secondary" }}>
+                      {subjectPlaceholder}
+                    </Box>
+                  ),
+              },
+            }}
+          >
+            {subjectOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
+        ) : (
+          <TextField
+            label="Subject"
+            value={values.subject}
+            onChange={handleChange("subject")}
+            fullWidth
+          />
+        )}
         <TextField
           label="Your message"
           value={values.message}
